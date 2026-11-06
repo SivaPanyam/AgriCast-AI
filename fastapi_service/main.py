@@ -3,9 +3,9 @@ from fastapi.middleware.cors import CORSMiddleware
 import httpx
 
 app = FastAPI(
-    title="Agricultural Price Forecasting API",
-    description="FastAPI service with Multi-Model Forecasting, Seasonality & Drift Analytics",
-    version="2.0.0"
+    title="AgriCast-AI Gateway",
+    description="Enterprise Multi-Model Price Forecasting, Ensemble Stacking & Market Copilot API",
+    version="2.5.0"
 )
 
 app.add_middleware(
@@ -21,15 +21,16 @@ DJANGO_API_URL = "http://127.0.0.1:8000/api/forecast/"
 @app.get("/")
 def home():
     return {
-        "message": "Agricultural Forecasting FastAPI Service",
-        "status": "running",
-        "version": "2.0.0"
+        "service": "AgriCast-AI Production Gateway",
+        "status": "online",
+        "version": "2.5.0",
+        "supported_models": ["ensemble", "sarima", "holtwinters", "xgboost"]
     }
 
 @app.get("/forecast")
 async def get_forecast(
     steps: int = Query(default=12, ge=1, le=36),
-    model: str = Query(default="sarima")
+    model: str = Query(default="ensemble")
 ):
     try:
         async with httpx.AsyncClient(timeout=30.0) as client:
@@ -41,12 +42,12 @@ async def get_forecast(
     except httpx.HTTPStatusError as exc:
         raise HTTPException(
             status_code=exc.response.status_code,
-            detail="Django forecasting API returned an error."
+            detail="Forecasting Core engine returned an error."
         )
     except httpx.RequestError:
         raise HTTPException(
             status_code=503,
-            detail="Unable to connect to Django forecasting API. Ensure Django is running on port 8000."
+            detail="Unable to reach Django Core service on port 8000."
         )
 
 @app.post("/forecast")
@@ -62,10 +63,10 @@ async def post_forecast(request: Request):
     except httpx.HTTPStatusError as exc:
         raise HTTPException(
             status_code=exc.response.status_code,
-            detail="Django forecasting API returned an error."
+            detail="Forecasting Core engine error."
         )
     except httpx.RequestError:
         raise HTTPException(
             status_code=503,
-            detail="Unable to connect to Django forecasting API."
+            detail="Unable to connect to Django Core forecasting API."
         )
